@@ -2,11 +2,9 @@
 let conversations = [];
 let users = [];
 let selected = {};
-
 const fetchConversations = async () => {
     const response = await fetch('/conversations');
     let json = await response.json();
-    console.log(json);
     conversations = json.conversations; // throw out status
 }
 
@@ -14,6 +12,12 @@ const fetchUsers = async () => {
     const response = await fetch('/users');
     let json = await response.json();
     users = json.users; // throw out status
+}
+
+const emit = defineEmits(['set-convo'])
+// set convo emit
+const setConvo = (id) => {
+   emit('set-convo', id)
 }
 
 // handle new conversation
@@ -38,6 +42,7 @@ await fetchUsers();
 
 await fetchConversations();
 
+
 </script>
 
 <template>
@@ -46,7 +51,9 @@ await fetchConversations();
         <div class="card-header">Conversations:</div>
 
         <div class="card-body text-dark" v-for="conversation in conversations">
-            <p class="card-text">{{ conversation.name }}</p>
+            <a href="#" @click="setConvo(conversation.id)">
+                <p class="card-text">{{ conversation.name }}</p>
+                </a>
         </div>
 
     </div>

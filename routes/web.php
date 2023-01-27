@@ -39,9 +39,9 @@ Route::middleware('auth')->group(function () {
 // ChatController
 Route::get('/users', [ChatController::class, 'users'])->name('users');
 Route::get('/conversations', [ChatController::class, 'fetchConversations'])->name('fetch.conversations');
-Route::get('/messages', [ChatController::class, 'fetchMessages'])->name('fetch.messages');
+Route::get('/conversation/{conversation_id}', [ChatController::class, 'fetchConversation'])->name('fetch.conversation');
 Route::post('/conversation', [ChatController::class, 'createConversation'])->name('create.conversation');
-Route::post('/message', [ChatController::class, 'sendMessage'])->name('send.message');
+Route::get('/messages/{conversation_id}', [ChatController::class, 'fetchMessages'])->name('fetch.messages');
 
 
 require __DIR__.'/auth.php';

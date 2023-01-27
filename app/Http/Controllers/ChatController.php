@@ -28,7 +28,14 @@ class ChatController extends Controller
     public function fetchConversations(Request $request)
     {
         $user = $request->user();
-        $conversations = $user->involvedConversations()->get();
+        $involvedConversations = $user->involvedConversations()->get();
+
+        // resolve from relationship
+        $conversations = [];
+        foreach ($involvedConversations as $involved) {
+            $conversation = $involved->conversation;
+            $conversations[] = $conversation;
+        }
 
         return response()->json([
             'status' => 'success',
@@ -36,10 +43,10 @@ class ChatController extends Controller
         ]);
     }
 
-    public function fetchMessages(Request $request)
+    public function fetchMessages(Request $request, $conversation_id)
     {
         $user = $request->user();
-        $conversation = Conversation::find($request->conversation_id);
+        $conversation = Conversation::find($conversation_id);
         if (!$conversation) {
             return response()->json([
                 'status' => 'error',
@@ -53,7 +60,30 @@ class ChatController extends Controller
         ]);
     }
 
+    public function fetchConversation(Request $request, $conversation_id)
+    {
+        $user = $request->user();
+        $conversation = Conversation::find($conversation_id);
+        if (!$conversation) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Conversation not found'
+            ]);
+        }
 
+        // guard: check if the user is involved in the conversation
+        if (!$conversation->users->contains($user)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not involved in this conversation'
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'conversation' => $conversation
+        ]);
+    }
     public function createConversation(Request $request)
     {
         // logger
@@ -89,10 +119,10 @@ class ChatController extends Controller
             }
         }
 
-            $conversation = new Conversation();
-            $conversation->title = $user->name . ' and ' . $receiver->name;
-            $conversation->save();
-            $conversation->users()->attach([$user->id, $receiver->id]);
+        $conversation = new Conversation();
+        $conversation->name = $user->name . ' and ' . $receiver->name;
+        $conversation->save();
+        $conversation->users()->attach([$user->id, $receiver->id]);
 
 
         return response()->json([

@@ -4,6 +4,18 @@ import {Head} from '@inertiajs/vue3';
 import {Suspense} from 'vue';
 // import Sidebar
 import Sidebar from './Chat/Sidebar.vue';
+import ChatArea from "./Chat/ChatArea.vue";
+
+import {ref} from 'vue';
+
+const chatArea = ref(null);
+
+function setTargetConversationID(id) {
+    chatArea.value.setConversationID(id);
+}
+
+
+// emits
 
 </script>
 
@@ -19,117 +31,19 @@ import Sidebar from './Chat/Sidebar.vue';
                         <div class="row">
                             <div class="col-2">
                                 <Suspense>
-                                    <Sidebar />
+                                    <Sidebar @set-convo="setTargetConversationID" />
                                     <template #fallback>
                                         <div>Loading...</div>
                                     </template>
                                 </Suspense>
-
-
                             </div>
                             <div class="col-8">
-                                <div class="card ">
-                                    <div class="card-header">
-                                        John Smith
-                                    </div>
-                                    <div class="card-body"
-                                         style="max-height: 50vh; overflow-y: scroll; display: flex; flex-direction: column-reverse">
-                                        <div class="card border-dark mb-3" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Hello, how are you doing?</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="card border-blue mb-3  ms-auto" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Pretty good, thanks!</p>
-                                            </div>
-                                        </div>
-                                        <div class="card border-dark mb-3" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">This is a fake conversation</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="card border-blue mb-3  ms-auto" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Where I am demoing that scrolling works!</p>
-                                            </div>
-                                        </div>
-                                        <div class="card border-dark mb-3" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Wow how exciting lol</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="card border-blue mb-3  ms-auto" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Pretty good, thanks!</p>
-                                            </div>
-                                        </div>
-                                        <div class="card border-dark mb-3" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Do do do</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="card border-blue mb-3  ms-auto" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">This is going to be a bit of a longer message or
-                                                    something.</p>
-                                            </div>
-                                        </div>
-                                        <div class="card border-dark mb-3" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Hello, how are you doing?</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="card border-blue mb-3  ms-auto" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Pretty good, thanks!</p>
-                                            </div>
-                                        </div>
-                                        <div class="card border-dark mb-3" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Hello, how are you doing?</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="card border-blue mb-3  ms-auto" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Pretty good, thanks!</p>
-                                            </div>
-                                        </div>
-                                        <div class="card border-dark mb-3" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Hello, how are you doing?</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="card border-blue mb-3  ms-auto" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Pretty good, thanks!</p>
-                                            </div>
-                                        </div>
-                                        <div class="card border-dark mb-3" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Hello, how are you doing?</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="card border-blue mb-3  ms-auto" style="max-width: 18rem;">
-                                            <div class="card-body text-dark">
-                                                <p class="card-text">Pretty good, thanks!</p>
-                                            </div>
-                                        </div>
-
-
-                                    </div>
-                                    <div class="card-footer text-muted">
-                                        2 days ago
-                                    </div>
-                                </div>
+                                <Suspense>
+                                    <ChatArea ref="chatArea" />
+                                    <template #fallback>
+                                        <div>Loading...</div>
+                                    </template>
+                                </Suspense>
                             </div>
                         </div>
                     </div>

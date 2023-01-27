@@ -44,6 +44,24 @@ const fetchMessages = async () => {
     messages.value = json.messages;
 }
 
+const sendMessage = async (message) => {
+    if(!message || conversationID === -1) return;
+    const response = await fetch('/message',{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            conversation_id: conversationID,
+            message: message,
+        })
+    });
+    const json = await response.json();
+    await fetchMessages();
+
+}
+
 await fetchConversation();
 await fetchMessages();
 

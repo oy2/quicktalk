@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ChatMessage;
+use App\Events\NewMessageNotificationEvent;
 use App\Models\Conversation;
 use App\Models\ConversationUser;
 use App\Models\Message;
@@ -226,7 +227,7 @@ class ChatController extends Controller
         ]);
 
         $message->save();
-        event(new ChatMessage($conversation));
+        event(new NewMessageNotificationEvent($conversation));
 
 
         return response()->json([
@@ -288,7 +289,7 @@ class ChatController extends Controller
         }
 
         // Event trigger
-        event(new ChatMessage($conversation));
+        event(new NewMessageNotificationEvent($conversation));
 
         return response()->json([
             'status' => 'success',

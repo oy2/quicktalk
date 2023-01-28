@@ -12,6 +12,8 @@ import ChatArea from "./Chat/ChatArea.vue";
 const chatArea = ref(null);
 const sidebar = ref(null);
 
+const userID = ref(document.querySelector("meta[name='user-id']").getAttribute('content'));
+
 // Functions to interact necessary signals to child components
 /**
  * Sets the target conversation ID for the chat area. Uses exposed function from child component.
@@ -21,12 +23,22 @@ function setTargetConversationID(id) {
     chatArea.value.setConversationID(id);
 }
 
+function signalChatAreaRefresh() {
+    chatArea.value.refresh();
+}
+
 /**
  * Signals the sidebar to refresh. Uses exposed function from child component.
  */
 function signalSidebarRefresh() {
     sidebar.value.refresh();
 }
+
+Echo.private('new-message-notification.' + userID.value)
+    .listen('NewMessageNotificationEvent', (e) => {
+        signalSidebarRefresh();
+        signalChatAreaRefresh();
+    });
 
 </script>
 

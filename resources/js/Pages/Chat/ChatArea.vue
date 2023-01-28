@@ -16,8 +16,15 @@ defineExpose({
         conversationID.value = id;
         fetchConversation();
         fetchMessages();
+    },
+    refresh: () => {
+        fetchConversation();
+        fetchMessages();
     }
 })
+
+// Echo listen
+
 
 /**
  * Emit a signal to parent to refresh the other UI components

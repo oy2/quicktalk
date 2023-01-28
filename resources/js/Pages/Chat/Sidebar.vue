@@ -10,6 +10,7 @@ let selected = {};
 let selectedUsers = [];
 let groupName = "";
 let userid = ref(document.querySelector("meta[name='user-id']").getAttribute('content'));
+let currentConvo = ref(-1);
 
 // expose functions to parent
 defineExpose({
@@ -25,6 +26,7 @@ defineExpose({
  */
 const setConvo = (id) => {
     emit('set-convo', id)
+    currentConvo.value = id;
 }
 
 /**

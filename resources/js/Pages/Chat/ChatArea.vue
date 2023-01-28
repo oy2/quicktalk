@@ -148,8 +148,8 @@ await fetchMessages();
             <div v-for="message in messages">
 
                 <div v-if="message.user_id == userid">
-                    <div class="card border-blue mb-3  ms-auto" style="max-width: 18rem;">
-                        <div class="card-body text-dark">
+                    <div class="card border-blue mb-1  ms-auto" style="max-width: 18rem">
+                        <div class="card-body text-dark" >
                             <p class="card-text">{{ message.content }}</p>
                         </div>
                         <!-- Small space for Sent at date created_at -->
@@ -159,13 +159,10 @@ await fetchMessages();
                     </div>
                 </div>
                 <div v-else>
-                    <div class="card border-dark mb-3 " style="max-width: 18rem;">
+                    <div class="card border-dark mb-1 " style="max-width: 18rem;">
                         <div class="card-body text-dark">
                             <p class="card-text">{{ message.content }}</p>
-
                         </div>
-
-
                         <!-- Small space for Sent at date created_at -->
                         <div class="card-footer text-muted">
                             <span v-if="isGroupDM(conversation)" class="">

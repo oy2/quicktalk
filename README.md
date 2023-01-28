@@ -1,66 +1,67 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## quicktalk
 
-## About Laravel
+Quicktalk is a messaging app writing in Laravel and Vue.js. It is a simple app that allows users to send messages to each other and form groups to chat with multiple people.
+It demonstrates the use of Vue to enable reactive components and Laravel to handle the backend. Additionally, it uses Laravel Echo to enable real-time updates.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Table of Contents
+- [Features](#features)
+- [Requirements](#requirements)
+- [Running](#running)
+- [Screenshots](#screenshots)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Key Features
+- Real-time messaging (direct and group)
+- User authentication (login, registration, password reset)
+- User profile (update name, email, password, profile picture) & editor
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Structure
+Key locations:
+- `app/Http/Controllers` -- Controllers
+- `app/Models` -- Models
+- `public/js` -- Vue components
 
-## Learning Laravel
+### Requirements
+- PHP >= 7.1.3
+- Composer
+- Node.js
+- NPM
+- SQL Database (e.g. MySQL, SQLite)
+- Pusher -- or any broadcast driver supported by Laravel
+- Redis -- or any queue driver supported by Laravel
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+docker-compose.yml can easily generate a development environment
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Running
+This is a laravel application so npm and composer are required to run it. To install the dependencies run the following commands:
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    npm install
+    composer install
 
-## Laravel Sponsors
+After installing the dependencies, you need to create a `.env` file. You can copy the `.env.example` file and rename it to `.env`. Then, you need to generate an application key by running the following command:
+    
+    php artisan key:generate
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+After that, you need to create a database and update the `.env` file with the database credentials. Then, run the following command to run the migrations:
+    
+    php artisan migrate
 
-### Premium Partners
+By default, the app is setup to use the `pusher` driver for broadcasting. You can change this in the `.env` file. If you want to use pusher, you need to create an account on pusher and update the `.env` file with the credentials.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+After that, you need to run the following command to compile the assets:
+    
+    npm run build
 
-## Contributing
+To run the application, run the following command:
+    
+    php artisan serve
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Screenshots
 
-## Code of Conduct
+#### Chat Window
+![Chat Window](docs/images/chatdemo.png
+)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Creation
+![Chat Window](docs/images/creation.png
+)

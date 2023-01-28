@@ -1,29 +1,56 @@
 <script setup>
 import {ref} from "vue";
 
+const emit = defineEmits(['set-convo'])
+
+// references
 let conversations = ref([]);
 let users = [];
 let selected = {};
 let userid = ref(document.querySelector("meta[name='user-id']").getAttribute('content'));
+
+// expose functions to parent
+defineExpose({
+    refresh: () => {
+        fetchConversations();
+        fetchUsers();
+    }
+})
+
+/**
+ * Emit a signal to parent with a given conversation ID
+ * @param id conversation ID
+ */
+const setConvo = (id) => {
+    emit('set-convo', id)
+}
+
+/**
+ * Fetch conversations from server and update conversations reference
+ * @returns {Promise<void>} void
+ */
 const fetchConversations = async () => {
     const response = await fetch('/conversations');
     let json = await response.json();
     conversations.value = json.conversations; // throw out status
 }
 
+/**
+ * Fetch users from server and update users reference
+ * @returns {Promise<void>} void
+ */
 const fetchUsers = async () => {
     const response = await fetch('/users');
     let json = await response.json();
     users = json.users; // throw out status
 }
 
-const emit = defineEmits(['set-convo'])
-// set convo emit
-const setConvo = (id) => {
-    emit('set-convo', id)
-}
-
-// handle new conversation
+/**
+ * Create a new conversation with a given user ID.
+ * After creating the conversation then conversations are reacquired from the server.
+ * @param userId
+ * @returns {Promise<void>}
+ */
 const createConversation = async (userId) => {
     if (!userId) return;
     const response = await fetch('/conversation', {
@@ -40,21 +67,26 @@ const createConversation = async (userId) => {
     await fetchConversations();
 }
 
+/**
+ * Get the name of a conversation. UI Utility function.
+ * If the conversation has only two users, then the name of the other user is returned.
+ * Otherwise, the name of the conversation is returned.
+ * @param conversation conversation object
+ * @returns {string} name of conversation
+ */
 const conversationName = (conversation) => {
     console.log(conversation)
     if(!conversation.users) return "";
     // if conversation has only two users, return the name of the other users
     if (conversation.users.length === 2) {
-        return conversation.users.filter(user => user.id !== userid)[0].name;
+        return conversation.users.filter(user => user.id !== parseInt(userid.value))[0].name;
     }
     return conversation.name;
 }
 
-
+// Fetch initial data from the server for the first time
 await fetchUsers();
-
 await fetchConversations();
-
 
 </script>
 
@@ -78,8 +110,8 @@ await fetchConversations();
 
     </div>
     <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-            data-bs-target="#staticBackdrop">
+    <button type="button" class="btn btn-primary btn-lg btn-block" data-bs-toggle="modal"
+            data-bs-target="#staticBackdrop" >
         New Conversation
     </button>
 

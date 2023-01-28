@@ -1,12 +1,16 @@
 <script setup>
 import {ref} from 'vue';
 
+const emit = defineEmits(['refresh'])
+
+// references
 let conversationID = ref(-1);
-let conversation = ref({name: "Loading...", updated_at: "Loading..."});
+let conversation = ref({name: "Loading...", updated_at: "Loading...", users: []});
 let text = "";
 let messages = ref([]);
 let userid = ref(document.querySelector("meta[name='user-id']").getAttribute('content'));
 
+// expose functions to parent
 defineExpose({
     setConversationID: (id) => {
         conversationID.value = id;
@@ -15,6 +19,17 @@ defineExpose({
     }
 })
 
+/**
+ * Emit a signal to parent to refresh the other UI components
+ */
+const signalRefresh = () => {
+    emit('refresh');
+}
+
+/**
+ * Fetch a conversation from the server and update the conversation reference
+ * @returns {Promise<void>} void
+ */
 const fetchConversation = async () => {
     if (conversationID.value === -1) return;
     const response = await fetch('/conversation/' + conversationID.value, {
@@ -28,6 +43,10 @@ const fetchConversation = async () => {
     conversation.value = json.conversation;
 }
 
+/**
+ * Fetch messages from the server and update the messages reference
+ * @returns {Promise<void>} void
+ */
 const fetchMessages = async () => {
     if (conversationID.value === -1) return;
     // fetch messages
@@ -44,6 +63,11 @@ const fetchMessages = async () => {
     messages.value.reverse();
 }
 
+/**
+ * Send a message to the server and trigger a UI update
+ * @param message message to send
+ * @returns {Promise<void>} void
+ */
 const sendMessage = async (message) => {
     if (!message || conversationID.value === -1) return;
 
@@ -60,8 +84,13 @@ const sendMessage = async (message) => {
     });
     const json = await response.json();
     await fetchMessages();
+    signalRefresh();
 }
 
+/**
+ * Handle sync chat message submission from input within UI
+ * @param e event
+ */
 const handleSubmit = (e) => {
     // This method is sync to prevent multiple messages being sent
     e.preventDefault();
@@ -70,6 +99,11 @@ const handleSubmit = (e) => {
     text = null;
 }
 
+/**
+ * Return the name of a conversation based on the conversation object and number of users.
+ * @param conversation conversation object
+ * @returns {*|string} name of conversation
+ */
 const conversationName = (conversation) => {
     if(conversationID.value === -1 || !conversation.users) return "Please select a conversation from the side";
     // if conversation has only two users, return the name of the other users
@@ -79,6 +113,7 @@ const conversationName = (conversation) => {
     return conversation.name;
 }
 
+// Fetch initial data
 await fetchConversation();
 await fetchMessages();
 
@@ -126,7 +161,7 @@ await fetchMessages();
             </div>
         </div>
         <div class="card-footer text-muted">
-            Last Message: {{ conversationID.value === -1 ? "-" : conversation.updated_at }}
+            {{ conversationID.value === -1 ? "-" : "Users: " + conversation.users.map(user => user.name).join(", ") }}
         </div>
     </div>
 </template>

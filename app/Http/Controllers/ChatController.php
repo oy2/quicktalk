@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use App\Models\ConversationUser;
 use App\Models\Message;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ChatController extends Controller
@@ -16,6 +17,12 @@ class ChatController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * Sends a list of potential users to chat with for selection UIs.
+     * Exclude the current user from the list. Only sends back the id and name.
+     * @param Request $request the request
+     * @return JsonResponse the response
+     */
     public function users(Request $request)
     {
         // only send back list of names and ids
@@ -26,6 +33,12 @@ class ChatController extends Controller
         ]);
     }
 
+    /**
+     * Grabs an authenticated user's conversations and returns them.
+     * Sorts by most recent message. Also returns read status and conversation users.
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function fetchConversations(Request $request)
     {
         $user = $request->user();
@@ -47,6 +60,7 @@ class ChatController extends Controller
 
         /*
          * Quicksort the conversations by the last message
+         * TODO optimize
          */
 
         // helper function
@@ -81,14 +95,18 @@ class ChatController extends Controller
         // call quicksort
         quicksort($conversations, 0, count($conversations) - 1);
 
-
-
         return response()->json([
             'status' => 'success',
             'conversations' => $conversations
         ]);
     }
 
+    /**
+     * Fetches a conversation's messages and returns them.
+     * @param Request $request the request
+     * @param $conversation_id conversation's id
+     * @return JsonResponse the response with the messages or error
+     */
     public function fetchMessages(Request $request, $conversation_id)
     {
         $user = $request->user();
@@ -99,6 +117,15 @@ class ChatController extends Controller
                 'message' => 'Conversation not found'
             ]);
         }
+
+        // guard: check if the user is involved in the conversation
+        if (!$conversation->users->contains($user)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not involved in this conversation'
+            ]);
+        }
+
         $messages = $conversation->messages()->with('user')->get();
         return response()->json([
             'status' => 'success',
@@ -106,6 +133,12 @@ class ChatController extends Controller
         ]);
     }
 
+    /**
+     * Fetches a given conversation and returns it.
+     * @param Request $request the request
+     * @param $conversation_id conversation's id
+     * @return JsonResponse the response with the conversation or error
+     */
     public function fetchConversation(Request $request, $conversation_id)
     {
         $user = $request->user();
@@ -133,6 +166,12 @@ class ChatController extends Controller
             'conversation' => $conversation
         ]);
     }
+
+    /**
+     * Creates a conversation between two users.
+     * @param Request $request the request
+     * @return JsonResponse the response with the conversation or error
+     */
     public function createConversation(Request $request)
     {
         // logger
@@ -190,6 +229,11 @@ class ChatController extends Controller
         ]);
     }
 
+    /**
+     * Sends a message to a conversation.
+     * @param Request $request the request
+     * @return JsonResponse the response with the message or error
+     */
     public function sendMessage(Request $request)
     {
         // ensure conversation_id, message (text) are present
@@ -211,13 +255,13 @@ class ChatController extends Controller
             ]);
         }
 
+        // guard: check if the user is involved in the conversation
         if (!$conversation->users->contains($user)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not involved in this conversation'
             ]);
         }
-
 
         // create message for user and content as message
         $message = new Message([
@@ -226,10 +270,9 @@ class ChatController extends Controller
             'conversation_id' => $conversation->id
         ]);
 
-        // save message
         $message->save();
 
-        // Send the message to the conversation
+        // Event trigger
         event(new ChatMessage($conversation));
 
         return response()->json([

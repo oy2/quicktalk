@@ -47,7 +47,7 @@ function signalSidebarRefresh() {
                             </Suspense>
                         </div>
                         <div class="col-8">
-                            <!-- Chatbox Component -- Suspense because async data calls -->
+                            <!-- ChatArea Component -- Suspense because async data calls -->
                             <Suspense>
                                 <ChatArea ref="chatArea" @refresh="signalSidebarRefresh"/>
                                 <template #fallback>

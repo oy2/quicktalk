@@ -75,7 +75,6 @@ const createConversation = async (userId) => {
  * @returns {string} name of conversation
  */
 const conversationName = (conversation) => {
-    console.log(conversation)
     if(!conversation.users) return "";
     // if conversation has only two users, return the name of the other users
     if (conversation.users.length === 2) {

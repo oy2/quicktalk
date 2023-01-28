@@ -127,6 +127,12 @@ class ChatController extends Controller
         }
 
         $messages = $conversation->messages()->with('user')->get();
+
+        // mark messages as read
+        $user->involvedConversations()
+            ->where('conversation_id', $conversation->id)
+            ->update(['unread' => 0]);
+
         return response()->json([
             'status' => 'success',
             'messages' => $messages
@@ -271,6 +277,15 @@ class ChatController extends Controller
         ]);
 
         $message->save();
+
+        // update conversation as unread for all non-senders
+        foreach ($conversation->users as $user) {
+            if ($user->id != $message->user_id) {
+                $user->involvedConversations()
+                    ->where('conversation_id', $conversation->id)
+                    ->update(['unread' => 1]);
+            }
+        }
 
         // Event trigger
         event(new ChatMessage($conversation));

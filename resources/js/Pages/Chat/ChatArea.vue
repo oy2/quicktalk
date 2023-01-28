@@ -41,6 +41,7 @@ const fetchConversation = async () => {
     });
     let json = await response.json();
     conversation.value = json.conversation;
+    signalRefresh();
 }
 
 /**

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ConversationUser extends Model
 {
     protected $table = 'conversation_user';
+    public $timestamps = false;
     protected $fillable = [
         'conversation_id',
         'user_id',

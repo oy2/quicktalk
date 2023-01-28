@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\ChatMessage;
 use App\Models\Conversation;
+use App\Models\ConversationUser;
 use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -34,8 +35,53 @@ class ChatController extends Controller
         $conversations = [];
         foreach ($involvedConversations as $involved) {
             $conversation = $involved->conversation;
+            // set conversation.users
+            $conversation->users = $conversation->users()->get();
+            // hide conversation.users.email_verified_at .email .created_at .updated_at
+            $conversation->users->makeHidden(['email_verified_at', 'email', 'created_at', 'updated_at']);
+            // add read field
+            $conversation->unread = $involved->unread();
+
             $conversations[] = $conversation;
         }
+
+        /*
+         * Quicksort the conversations by the last message
+         */
+
+        // helper function
+        function partition(&$conversations, $low, $high)
+        {
+            $pivot = $conversations[$high]->messages->last()->created_at;
+            $i = $low - 1;
+            for ($j = $low; $j < $high; $j++) {
+                if ($conversations[$j]->messages->last()->created_at > $pivot) {
+                    $i++;
+                    $temp = $conversations[$i];
+                    $conversations[$i] = $conversations[$j];
+                    $conversations[$j] = $temp;
+                }
+            }
+            $temp = $conversations[$i + 1];
+            $conversations[$i + 1] = $conversations[$high];
+            $conversations[$high] = $temp;
+            return $i + 1;
+        }
+
+        // quicksort
+        function quicksort(&$conversations, $low, $high)
+        {
+            if ($low < $high) {
+                $pi = partition($conversations, $low, $high);
+                quicksort($conversations, $low, $pi - 1);
+                quicksort($conversations, $pi + 1, $high);
+            }
+        }
+
+        // call quicksort
+        quicksort($conversations, 0, count($conversations) - 1);
+
+
 
         return response()->json([
             'status' => 'success',
@@ -78,6 +124,9 @@ class ChatController extends Controller
                 'message' => 'You are not involved in this conversation'
             ]);
         }
+
+        // hide conversation.users.email_verified_at .email .created_at .updated_at
+        $conversation->users->makeHidden(['email_verified_at', 'email', 'created_at', 'updated_at']);
 
         return response()->json([
             'status' => 'success',
@@ -124,6 +173,16 @@ class ChatController extends Controller
         $conversation->save();
         $conversation->users()->attach([$user->id, $receiver->id]);
 
+        // create an inital message to start the conversation from $user
+        $message = new Message([
+            'user_id' => $user->id,
+            'content' => 'Created this conversation.',
+            'conversation_id' => $conversation->id
+        ]);
+
+        $message->save();
+        event(new ChatMessage($conversation));
+
 
         return response()->json([
             'status' => 'success',
@@ -139,7 +198,10 @@ class ChatController extends Controller
             'message' => 'required'
         ]);
         $user = $request->user();
-        $conversation = Conversation::find($request->conversation_id);
+        $conversation = Conversation::where(
+            'id',
+            $request->conversation_id
+        )->first();
 
         // Check if the conversation exists
         if (!$conversation) {
@@ -149,13 +211,13 @@ class ChatController extends Controller
             ]);
         }
 
-        // guard: user in conversation.users()
-        if (!$conversation->users->contains($user->id)) {
+        if (!$conversation->users->contains($user)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'You are not part of this conversation'
+                'message' => 'You are not involved in this conversation'
             ]);
         }
+
 
         // create message for user and content as message
         $message = new Message([

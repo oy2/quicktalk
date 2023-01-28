@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Message extends Model
 {
+    // timestamps
+    public $timestamps = true;
+
     protected $fillable = [
         'user_id',
         'content',

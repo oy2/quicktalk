@@ -11,6 +11,7 @@ class ConversationUser extends Model
     protected $fillable = [
         'conversation_id',
         'user_id',
+        'unread',
     ];
 
     public function conversation(): BelongsTo
@@ -21,5 +22,22 @@ class ConversationUser extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function markAsRead()
+    {
+        $this->unread = false;
+        $this->save();
+    }
+
+    public function markAsUnread()
+    {
+        $this->unread = true;
+        $this->save();
+    }
+
+    public function unread(): bool
+    {
+        return $this->unread;
     }
 }

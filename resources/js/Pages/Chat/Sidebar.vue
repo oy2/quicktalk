@@ -1,11 +1,14 @@
 <script setup>
-let conversations = [];
+import {ref} from "vue";
+
+let conversations = ref([]);
 let users = [];
 let selected = {};
+let userid = ref(document.querySelector("meta[name='user-id']").getAttribute('content'));
 const fetchConversations = async () => {
     const response = await fetch('/conversations');
     let json = await response.json();
-    conversations = json.conversations; // throw out status
+    conversations.value = json.conversations; // throw out status
 }
 
 const fetchUsers = async () => {
@@ -17,12 +20,12 @@ const fetchUsers = async () => {
 const emit = defineEmits(['set-convo'])
 // set convo emit
 const setConvo = (id) => {
-   emit('set-convo', id)
+    emit('set-convo', id)
 }
 
 // handle new conversation
 const createConversation = async (userId) => {
-    if(!userId) return;
+    if (!userId) return;
     const response = await fetch('/conversation', {
         method: 'POST',
         headers: {
@@ -34,7 +37,17 @@ const createConversation = async (userId) => {
         })
     });
     const json = await response.json();
-    conversations.push(json.conversation);
+    await fetchConversations();
+}
+
+const conversationName = (conversation) => {
+    console.log(conversation)
+    if(!conversation.users) return "";
+    // if conversation has only two users, return the name of the other users
+    if (conversation.users.length === 2) {
+        return conversation.users.filter(user => user.id !== userid)[0].name;
+    }
+    return conversation.name;
 }
 
 
@@ -52,8 +65,15 @@ await fetchConversations();
 
         <div class="card-body text-dark" v-for="conversation in conversations">
             <a href="#" @click="setConvo(conversation.id)">
-                <p class="card-text">{{ conversation.name }}</p>
-                </a>
+                <div class="card border-dark mb-3" style="max-width: 18rem;">
+                    <div class="card-header">
+                        {{ conversationName(conversation) }}
+                        <span v-if="conversation.unread" class="badge bg-primary rounded-pill">
+                            Unread
+                        </span>
+                    </div>
+                </div>
+            </a>
         </div>
 
     </div>

@@ -8,8 +8,9 @@
 
         <!-- Fonts -->
         <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+
         @auth()
+            <meta name="csrf-token" content="{{ csrf_token() }}">
             <meta name="user-id" content="{{ Auth::user()->id }}">
         @endauth
 

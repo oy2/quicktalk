@@ -12,7 +12,19 @@ import ChatArea from "./Chat/ChatArea.vue";
 const chatArea = ref(null);
 const sidebar = ref(null);
 
-const userID = ref(document.querySelector("meta[name='user-id']").getAttribute('content'));
+const userID = ref(null);
+
+let querySelector = document.querySelector("meta[name='user-id']");
+
+if(!querySelector){
+    console.log("No user ID found. Reloading...")
+    // force reload
+    window.location.reload();
+}
+
+userID.value = querySelector.getAttribute('content');
+
+
 
 // Functions to interact necessary signals to child components
 /**
@@ -34,6 +46,9 @@ function signalSidebarRefresh() {
     sidebar.value.refresh();
 }
 
+/**
+ * Main new event listener for the dashboard for real-time refresh.
+ */
 Echo.private('new-message-notification.' + userID.value)
     .listen('NewMessageNotificationEvent', (e) => {
         signalSidebarRefresh();
@@ -58,7 +73,7 @@ Echo.private('new-message-notification.' + userID.value)
                                 </template>
                             </Suspense>
                         </div>
-                        <div class="col-8">
+                        <div class="col-10">
                             <!-- ChatArea Component -- Suspense because async data calls -->
                             <Suspense>
                                 <ChatArea ref="chatArea" @refresh="signalSidebarRefresh"/>

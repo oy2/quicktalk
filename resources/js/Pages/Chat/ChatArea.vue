@@ -9,6 +9,7 @@ let conversation = ref({name: "Loading...", updated_at: "Loading...", users: []}
 let text = "";
 let messages = ref([]);
 let userid = ref(document.querySelector("meta[name='user-id']").getAttribute('content'));
+let isTyping = ref(false);
 
 // expose functions to parent
 defineExpose({
@@ -22,9 +23,6 @@ defineExpose({
         fetchMessages();
     }
 })
-
-// Echo listen
-
 
 /**
  * Emit a signal to parent to refresh the other UI components
@@ -116,10 +114,16 @@ const conversationName = (conversation) => {
     if(conversationID.value === -1 || !conversation.users) return "Please select a conversation from the side";
     // if conversation has only two users, return the name of the other users
     if (conversation.users.length === 2) {
-        return "Chat with " + conversation.users.filter(user => user.id !== userid)[0].name;
+        return "Chat with " + conversation.users.filter(user => user.id !== parseInt(userid.value))[0].name;
     }
     return conversation.name;
 }
+
+const isGroupDM = (conversation) => {
+    return conversation.users.length > 2;
+}
+
+
 
 // Fetch initial data
 await fetchConversation();
@@ -160,9 +164,14 @@ await fetchMessages();
                             <p class="card-text">{{ message.content }}</p>
 
                         </div>
+
+
                         <!-- Small space for Sent at date created_at -->
                         <div class="card-footer text-muted">
-                            <small>Sent at: {{ message.created_at }}</small>
+                            <span v-if="isGroupDM(conversation)" class="">
+                                {{ message.user.name }}
+                        </span>
+                            <small> at: {{ message.created_at }}</small>
                         </div>
                     </div>
                 </div>

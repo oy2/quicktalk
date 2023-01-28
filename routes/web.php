@@ -16,15 +16,9 @@ use Inertia\Inertia;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+})->middleware('auth');
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -36,11 +30,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// ChatController
+// ChatController -- For now these are in web not api because only the web app is using them -- thus web auth/middleware is used
 Route::get('/users', [ChatController::class, 'users'])->name('users');
 Route::get('/conversations', [ChatController::class, 'fetchConversations'])->name('fetch.conversations');
 Route::get('/conversation/{conversation_id}', [ChatController::class, 'fetchConversation'])->name('fetch.conversation');
 Route::post('/conversation', [ChatController::class, 'createConversation'])->name('create.conversation');
+Route::post('/groupconversation', [ChatController::class, 'createConversationGroup'])->name('create.conversation.group');
 Route::post('/message', [ChatController::class, 'sendMessage'])->name('send.message');
 Route::get('/messages/{conversation_id}', [ChatController::class, 'fetchMessages'])->name('fetch.messages');
 

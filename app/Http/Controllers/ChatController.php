@@ -174,6 +174,54 @@ class ChatController extends Controller
         ]);
     }
 
+    public function createConversationGroup(Request $request){
+        // takes a list of user IDs called additionalUsers, and a conversation ID called conversationID
+        // validate receiver_id
+        $request->validate([
+            'additionalUsers' => 'required',
+            'conversationName' => 'required'
+        ]);
+
+        $user = $request->user();
+        $additionalUsers = $request->additionalUsers;
+        $conversationName = $request->conversationName;
+
+        // validate additionalUsers
+        foreach($additionalUsers as $additionalUser){
+            if(!User::find($additionalUser)){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'User not found'
+                ]);
+            }
+        }
+
+        // create conversation
+        $conversation = new Conversation();
+        $conversation->name = $conversationName;
+        $conversation->save();
+        $conversation->users()->attach($user->id);
+        foreach($additionalUsers as $additionalUser){
+            $conversation->users()->attach($additionalUser);
+        }
+
+
+        $message = new Message([
+            'user_id' => $user->id,
+            'content' => 'Created this group conversation.',
+            'conversation_id' => $conversation->id
+        ]);
+
+        $message->save();
+
+        return response()->json([
+            'status' => 'success',
+            'conversation' => $conversation
+        ]);
+
+
+    }
+
     /**
      * Creates a conversation between two users.
      * @param Request $request the request
@@ -181,8 +229,6 @@ class ChatController extends Controller
      */
     public function createConversation(Request $request)
     {
-        // logger
-        logger($request->all());
         // validate receiver_id
         $request->validate([
             'receiver_id' => 'required'
